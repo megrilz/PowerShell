@@ -73,7 +73,7 @@ While you don't need to know the specific components within ACLs for this task, 
 
 
 
-Bonus Task 5: Verify Your PowerShell Logging GPO
+Task 5: Verify Your PowerShell Logging GPO
 
 
 
