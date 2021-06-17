@@ -1,79 +1,26 @@
 # PowerShell
-This project builds on the Group Policy Objectives activities.  I will create domain-hardening GPOs and revisit some PowerShell fundamentals.
-Deliverable for Task 1: Take a screenshot of all the GPOs created for this homework assignment. To find these, launch the Group Policy Management tool, select Group Policy Objects, and take a screenshot of the GPOs you've created.
+This project builds on the Group Policy Objectives activities.  I will create domain-hardening GPOs and revisit PowerShell fundamentals.
+The screenshot below is of all the GPOs created for this project. 
 
-Task 1: Create a GPO: Disable Local Link Multicast Name Resolution (LLMNR)
-For this first task, you will investigate and mitigate one of the attack vectors that exists within a Windows domain.
+Task 1: a GPO: Disable Local Link Multicast Name Resolution (LLMNR)
+I will investigate and mitigate one of the attack vectors that exists within a Windows domain.
 
 ![image](https://user-images.githubusercontent.com/80080368/122442999-24c1d600-cf6d-11eb-96d5-2bb0291671b4.png)
 
 
-Task 1: Create a GPO: Disable Local Link Multicast Name Resolution (LLMNR)
-For this first task, you will investigate and mitigate one of the attack vectors that exists within a Windows domain.
 
-
-Read about LLMNR vulnerabilities in the the MITRE ATT&CK database.
-
-
-MITRE is one of the world's leading organizations for threat intelligence in cybersecurity.
-
-
-MITRE maintains the Common Vulnerabilities and Exposures database, which catalogs officially known exploits.
-
-
-It also maintains this MITRE ATT&CK database, which catalogs attack methods and signatures of known hacking groups.
+MITRE is one of the world's leading organizations for threat intelligence in cybersecurity. MITRE maintains the Common Vulnerabilities and Exposures database, which catalogs officially known exploits. It also maintains this MITRE ATT&CK database, which catalogs attack methods and signatures of known hacking groups.
 
 
 
 
-Local Link Multicast Name Resolution (LLMNR) is a vulnerability, so we will be disabling it on our Windows 10 machine (via the GC Computers OU).
+Local Link Multicast Name Resolution (LLMNR) is a vulnerability, so I will be disabling it on the Windows 10 machine (via the GC Computers OU).
 A few notes about LLMNR:
-
-
 LLMNR is a protocol used as a backup (not an alternative) for DNS in Windows.
-
-
 When Windows cannot find a local address (e.g. the location of a file server), it uses LLMNR to send out a broadcast across the network asking if any device knows the address.
-
-
 LLMNR’s vulnerability is that it accepts any response as authentic, allowing attackers to poison or spoof LLMNR responses, forcing devices to authenticate to them.
-
-
 An LLMNR-enabled Windows machine may automatically trust responses from anyone in the network.
-
-
 Turning off LLMNR for the GC Computers OU will prevent our Windows machine from trusting location responses from potential attackers.
-
-Instructions
-Since this task deals with Active Directory Group Policy Objects, you'll be working in your nested Windows Server machine.
-Create a Group Policy Object that prevents your domain-joined Windows machine from using LLMNR:
-
-
-On the top-right of the Server Manager screen, open the Group Policy Management tool to create a new GPO.
-
-
-Right-click Group Policy Objects and select New.
-
-
-Name the Group Policy Object No LLMNR.
-
-
-Right-click the new No LLMNR GPO listing and select Edit to open the Group Policy Management Editor and find policies.
-
-
-In the Group Policy Management Editor, the policy you are looking for is at the following path: Computer Configuration\Policies\Administrative Templates\Network\DNS Client.
-
-
-Find the policy called Turn Off Multicast Name Resolution.
-
-
-Enable this policy.
-
-
-
-
-Exit the Group Policy Management Editor and link the GPO to the GC Computers organizational unit you previously created.
-
 
 
 
@@ -86,28 +33,12 @@ You only need to read the "Account Lockout Tradeoffs" and "Baseline Selection" s
 
 To summarize, an overly restrictive account lockout policy (such as locking an account for 10 hours after 2 failed attempts), can potentially keep an account locked forever if an attacker repeatedly attempts to access it in an automated way.
 
-Instructions
-You'll be working within in your nested Windows Server machine again to create another Group Policy Object.
-Create what you believe to be a reasonable account lockout Group Policy for the Windows 10 machine.
+![image](https://user-images.githubusercontent.com/80080368/122458695-17f9ae00-cf7e-11eb-9b2d-b4aa449215c2.png)
 
-
-Name the Group Policy Object Account Lockout.
-
-
-You can use Microsoft's 10/15/15 recommendation if you'd like.
-
-
-When editing policies for this new GPO, keep in mind that you're looking for computer configuration policies to apply to your GC Computers OU. Also, these policies involve Windows security settings and accounts.
-
-
-Don't forget to link the GPO to your GC Computers organizational unit.
-
-
-Hint: If you're confused about where to find the right policies, check the instructions in italics.
 
 
 Task 3: Create a GPO: Enabling Verbose PowerShell Logging and Transcription
-As mentioned in a previous lesson, PowerShell is often used as a living off the land hacker tool. This means:
+PowerShell is often used as a living off the land hacker tool. This means:
 
 Once a hacker gains access to a Windows machine, they will leverage built-in tools, such as PowerShell and wmic, as much as possible to achieve their goals while trying to stay under the radar.
 
@@ -126,83 +57,7 @@ This is why we're going to use a PowerShell practice that is recommended regardl
 This type of policy is important for tools like SIEM and for forensics operations, as it helps combat obfuscated PowerShell payloads.
 
 
-
-Instructions
-For this task, you'll be working in your Windows Server machine.
-Create a Group Policy Object to enable PowerShell logging and transcription. This GPO will combine multiple policies into one, although they are all under the same policy collection.
-
-
-Name the Group Policy Object PowerShell Logging.
-
-
-Find the proper Windows Powershell policy in Group Policy Management Editor.
-
-
-Hint: Check out the computer configuration, administrative templates, and Windows component directories.
-
-
-
-
-Enable the Turn on Module Logging and do the following:
-
-
-Click Show next to Module Names.
-
-
-Since we want to log all PowerShell modules, enter an asterisk * (wildcard) for the Module Name, then click OK.
-
-
-
-
-Enable the Turn on PowerShell Script Block Logging policy.
-
-
-This policy uses the following template to log what is executed in the script block:
-$collection = 
-foreach ($item in $collection) {
-    <Everything here will get logged by this policy>
-}
-
-
-Make sure to check the Log script block invocation start/stop events: setting.
-
-
-
-
-Enable the Turn on Script Execution policy and do the following:
-
-
-Set Execution Policy to Allow all scripts.
-
-
-Note: Do you remember the Set-ExecutionPolicy cmdlet we ran during the PowerShell exercises? This policy can enforce those settings as part of a GPO.
-
-
-
-
-Enable the Turn on PowerShell Transcription policy and do the following:
-
-
-Leave the Transcript output directory blank (this defaults to the user's ~\Documents directory).
-
-
-Note: "Transcription" means that an exact copy of the the commands are created in an output directory.
-
-
-
-Check the Include invocation headers option. This will add timestamps to the command transcriptions.
-
-
-
-
-Leave the Set the default source path for Update-Help policy as Not configured.
-
-
-Link this new PowerShell Logging GPO to the GC Computers OU.
-
-
-Note that the next time you log into your Windows 10 machine, run gpupdate. Then launch a new PowerShell window and run a script. You see verbose PowerShell logs created in the Windows 10 machine directory for the user that ran the script: C:\Users\<user>\Documents.
-Speaking of scripts, your next task is to create a script.
+![image](https://user-images.githubusercontent.com/80080368/122458800-32338c00-cf7e-11eb-8c8d-d1837f8c04f4.png)
 
 
 Task 4: Create a Script: Enumerate Access Control Lists
@@ -224,41 +79,7 @@ Get-Acl without any parameters or arguments will return the security descriptors
 Get-Acl <filename> will return the specific file's ACL. We'll need to use this for our task.
 
 
-
-Instructions
-For this task, you'll be working in your nested Windows 10 machine with the following credentials: sysadmin | cybersecurity.
-Create a PowerShell script that will enumerate the Access Control List of each file or subdirectory within the current working directory.
-
-
-Create a foreach loop. You can use the following template:
-foreach ($item in $directory) {
-    <Script block>
-}
-
-
-Above the foreach condition, set a variable, $directory, to the contents of the current directory.
-
-
-Replace the script block placeholder with the command to enumerate the ACL of a file, using the $item variable in place of the file name.
-
-
-You'll need to use the following cmdlets:
-
-
-Get-ChildItem (or any alias of Get-ChildItem, such as ls or dir)
-Get-Acl
-
-
-
-
-
-Save this script in C:\Users\sysadmin\Documents as enum_acls.ps1.
-
-
-Test this script by moving to any directory (cd C:\Windows), and running C:\Users\sysadmin\Documents\enum_acls.ps1 (enter the full path and file name).
-
-You should see the ACL output of each file or subdirectory where you ran the script from.
-
+![image](https://user-images.githubusercontent.com/80080368/122458944-5b541c80-cf7e-11eb-8dfa-aead179b6d7e.png)
 
 
 
@@ -289,6 +110,7 @@ Check the C:\Users\sysadmin\Documents for your new logs.
 You should see a directory with the current date (for example, 20200908) as the directory name. Your new transcribed PowerShell logs should be inside.
 
 
+![image](https://user-images.githubusercontent.com/80080368/122459021-6e66ec80-cf7e-11eb-902e-a5e68904ce67.png)
 
 
 
